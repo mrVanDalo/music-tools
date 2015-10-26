@@ -50,13 +50,27 @@ class Folder
     # include : included tags
     # exclude : excluded tags
     def initialize(  include_tags , exclude_tags = [], folder_name = include_tags )
-        @folder_name = folder_name
+        @folder_tags = folder_name
         @include = include_tags
         @exclude = exclude_tags
     end
 
     def name
-        return File.join( @folder_name.map { |tag| tag.to_s } )
+        Folder.create_folder_name( @folder_tags )
+    end
+
+    def self.create_folder_name( tags )
+        return File.join( tags.map { |tag| tag.to_s } )
+    end
+
+    def parent_folders_names
+        parents = @folder_tags.map do |tag|
+            @folder_tags.take( @folder_tags.find_index( tag ))
+        end
+        parents.flatten!
+        parents.map do |tags|
+            Folder.create_folder_name( tags )
+        end
     end
 
     def belongs_to? ( sample )
@@ -120,6 +134,14 @@ def collect_samples( samples )
 end
 
 
+#def clean_top_folders! ( sample_collection )
+    #sample_collection.keys.map do |folder_name|
+        #samples = sample_collection[ folder_name ]
+         #
+    #end
+#end
+
+
 def create_link_directives( sample_collection )
 
     require 'fileutils'
@@ -136,12 +158,12 @@ def create_link_directives( sample_collection )
     end
 
     sample_result = []
-    sample_collection.each do |key, values|
+    sample_collection.each do |folder, values|
         depth = get_depth(values)
         values.each do |sample|
             sample_result += [
                 {
-                    :folder => File.join( $target_dir, key ),
+                    :folder => File.join( $target_dir, folder ),
                     :target => sample.target(depth),
                     :source => sample.path,
                 }
