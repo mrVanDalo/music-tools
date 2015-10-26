@@ -208,44 +208,63 @@ def collect_samples( samples )
     return sample_collection
 end
 
-def get_depth( values , depth = 1) 
-    names = values.map do |sample|
-        sample.target(depth)
+
+
+def create_link_directives( sample_collection )
+
+    require 'fileutils'
+
+    def get_depth( values , depth = 1) 
+        names = values.map do |sample|
+            sample.target(depth)
+        end
+        if names.uniq.size == names.size
+            return depth
+        else
+            return get_depth( values, depth + 1 )
+        end
     end
-    if names.uniq.size == names.size
-        return depth
-    else
-        return get_depth( values, depth + 1 )
+
+    sample_result = []
+    sample_collection.each do |key, values|
+        depth = get_depth(values)
+        values.each do |sample|
+            sample_result += [
+                {
+                    :folder => File.join( $target_dir, key ),
+                    :target => sample.target(depth),
+                    :source => sample.path,
+                }
+            ]
+        end
+    end
+
+    return sample_result
+end
+
+def clear_target_dir()
+    require 'fileutils'
+    if File.exist?( $target_dir )
+        FileUtils.rm_r $target_dir
     end
 end
 
-$sample_result = []
 
 
-collect_samples(find_samples($samples_dir)).each do |key, values|
-    depth = get_depth(values)
-    values.each do |sample|
-        $sample_result += [
-            {
-                :folder => File.join( $target_dir, key ),
-                :target => sample.target(depth),
-                :source => sample.path,
-            }
-        ]
-    end
-end
+#
+# main
+# ------------------------------------------------------------
+clear_target_dir()
 
-require 'fileutils'
+samples = find_samples($samples_dir)
+sample_collection = collect_samples(samples)
+sample_directives = create_link_directives( sample_collection )
 
-if File.exist?( $target_dir )
-    FileUtils.rm_r $target_dir
-end
-
-$sample_result.each do |sample|
-    FileUtils.mkdir_p sample[:folder]
+sample_directives.each do |directive|
+    FileUtils.mkdir_p directive[:folder]
     FileUtils.ln(
-        sample[:source], 
-        File.join( sample[:folder], sample[:target]), 
+        directive[:source], 
+        File.join( directive[:folder], directive[:target]),
         :verbose => true
     )
 end
