@@ -40,7 +40,6 @@ class Sample
 end
 
 
-# todo : only put in the folder the stuff which is not in the other folders
 class Folder
 
     attr_accessor :folder_tags
@@ -127,6 +126,12 @@ def collect_samples( samples )
     return sample_collection
 end
 
+def clean_folders!( sample_collection )
+    sample_collection.keys.map do |folder_tags |
+        samples = sample_collection[ folder_tags ]
+        sample_collection[ folder_tags ] = samples.uniq
+    end
+end
 
 def clean_parent_folders! ( sample_collection )
     sample_collection.keys.map do |folder_tags|
@@ -145,21 +150,27 @@ def create_link_directives( sample_collection )
 
     require 'fileutils'
 
-    def get_depth( values , depth = 1) 
-        names = values.map do |sample|
+    def get_depth( samples, depth = 1) 
+        if depth == 10
+            samples.each do |s|
+                puts s.target(depth)
+            end
+            abort("to deep = #{depth}")
+        end
+        names = samples.map do |sample|
             sample.target(depth)
         end
         if names.uniq.size == names.size
             return depth
         else
-            return get_depth( values, depth + 1 )
+            return get_depth( samples, depth + 1 )
         end
     end
 
     sample_result = []
-    sample_collection.each do |folder_tags, values|
-        depth = get_depth(values)
-        values.each do |sample|
+    sample_collection.each do |folder_tags, samples|
+        depth = get_depth(samples)
+        samples.each do |sample|
             sample_result += [
                 {
                     :folder => File.join( $target_dir, Folder.create_folder_name( folder_tags )),
@@ -189,6 +200,7 @@ clear_target_dir()
 
 samples = find_samples($samples_dir)
 sample_collection = collect_samples(samples)
+clean_folders!( sample_collection )
 clean_parent_folders!( sample_collection )
 sample_directives = create_link_directives( sample_collection )
 
