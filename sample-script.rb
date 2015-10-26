@@ -68,10 +68,7 @@ class Folder
         parents = folder_tags.map do |tag|
             folder_tags.take( folder_tags.find_index( tag ))
         end
-        parents.flatten!
-        parents.map do |tags|
-            Folder.create_folder_name( tags )
-        end
+        parents
     end
 
     def belongs_to? ( sample )
@@ -135,10 +132,18 @@ def collect_samples( samples )
 end
 
 
-def clean_top_folders! ( sample_collection )
-    sample_collection.keys.map do |folder_name|
-        samples = sample_collection[ folder_name ]
-
+def clean_parent_folders! ( sample_collection )
+    sample_collection.keys.map do |folder_tags|
+        samples = sample_collection[ folder_tags ]
+        Folder.parent_folders_names( folder_tags ).each do | parent_folder_tags |
+            parent_samples = sample_collection[ parent_folder_tags ]
+            if parent_samples
+                puts "stripped #{folder_tags} : #{parent_folder_tags}"
+                sample_collection[ parent_folder_tags ] = ( parent_samples - samples )
+            else
+                puts "nothing found for striped #{folder_tags} :  #{parent_folder_tags}"
+            end
+        end
     end
 end
 
@@ -191,14 +196,16 @@ clear_target_dir()
 
 samples = find_samples($samples_dir)
 sample_collection = collect_samples(samples)
+clean_parent_folders!( sample_collection )
 sample_directives = create_link_directives( sample_collection )
 
+puts " directives : #{sample_directives.size}"
 sample_directives.each do |directive|
     FileUtils.mkdir_p directive[:folder]
     FileUtils.ln(
         directive[:source], 
         File.join( directive[:folder], directive[:target]),
-        :verbose => true
+        :verbose => false
     )
 end
 
