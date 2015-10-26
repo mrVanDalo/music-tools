@@ -46,6 +46,7 @@ class Folder
 
     attr_accessor :include
     attr_accessor :exclude
+    attr_accessor :folder_tags
 
     # include : included tags
     # exclude : excluded tags
@@ -63,9 +64,9 @@ class Folder
         return File.join( tags.map { |tag| tag.to_s } )
     end
 
-    def parent_folders_names
-        parents = @folder_tags.map do |tag|
-            @folder_tags.take( @folder_tags.find_index( tag ))
+    def self.parent_folders_names( folder_tags )
+        parents = folder_tags.map do |tag|
+            folder_tags.take( folder_tags.find_index( tag ))
         end
         parents.flatten!
         parents.map do |tags|
@@ -120,13 +121,13 @@ end
 def collect_samples( samples ) 
     sample_collection = {}
     $folders.each do |folder|
-        sample_collection[ folder.name ] = []
+        sample_collection[ folder.folder_tags ] = []
     end
 
     samples.each do |sample|
         $folders.each do |folder|
             if (folder.belongs_to?( sample))
-                sample_collection[ folder.name ] += [sample]
+                sample_collection[ folder.folder_tags ] += [sample]
             end
         end
     end
@@ -134,12 +135,12 @@ def collect_samples( samples )
 end
 
 
-#def clean_top_folders! ( sample_collection )
-    #sample_collection.keys.map do |folder_name|
-        #samples = sample_collection[ folder_name ]
-         #
-    #end
-#end
+def clean_top_folders! ( sample_collection )
+    sample_collection.keys.map do |folder_name|
+        samples = sample_collection[ folder_name ]
+
+    end
+end
 
 
 def create_link_directives( sample_collection )
@@ -158,12 +159,12 @@ def create_link_directives( sample_collection )
     end
 
     sample_result = []
-    sample_collection.each do |folder, values|
+    sample_collection.each do |folder_tags, values|
         depth = get_depth(values)
         values.each do |sample|
             sample_result += [
                 {
-                    :folder => File.join( $target_dir, folder ),
+                    :folder => File.join( $target_dir, Folder.create_folder_name( folder_tags )),
                     :target => sample.target(depth),
                     :source => sample.path,
                 }
