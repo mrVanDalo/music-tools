@@ -17,6 +17,7 @@ meta_tags = {
     :roland_mc909 => tag_help( 'mc', '909'),
     :roland_mc202 => tag_help( 'mc', '202'),
     :yamaha_rx120 => tag_help( 'rx', '120'),
+    :drumkit      => %w( drumkit drum kit            ) ,
     :kick    => %w( kick bassdrum                 ) ,
     :hihat   => %w( hihat hat hit openhi closedhi ) ,
     :clap    => %w( clap                          ) ,
@@ -48,7 +49,6 @@ end
 folder_tags = {
     :vinyl        => %w( vinyl                       ) ,
     :pulse        => %w( pulse                       ) ,
-    :drumkit      => %w( drumkit drum kit            ) ,
     :percussion   => %w( percussion perc             ) ,
     :loop         => %w( loop                        ) ,
     :instrument   => %w( instrument                  ) ,
@@ -89,7 +89,8 @@ $folders = [
     Folder.new( [ :loop    , :kick ] ),
     Folder.new( [ :loop    , :percussion ] ),
     # drum kits
-    Folder.new( [ :drumkit , :bass ] , [ :loop ] ),
+    Folder.new( [ :drumkit ] , [ :loop ]),
+    Folder.new( [ :drumkit , :bass ] , [ :loop ]),
     Folder.new( [ :kick            ] , [ :loop ] ,  [ :drumkit , :kick    ] ),
     Folder.new( [ :hihat           ] , [ :loop ] ,  [ :drumkit , :hihat   ] ),
     Folder.new( [ :clap            ] , [ :loop ] ,  [ :drumkit , :clap    ] ),

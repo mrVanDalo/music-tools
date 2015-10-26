@@ -26,7 +26,6 @@ class Sample
         return File.basename( @path )
     end
 
-
     def target( depth = 1 )
         path = @path
         name = []
@@ -44,8 +43,6 @@ end
 # todo : only put in the folder the stuff which is not in the other folders
 class Folder
 
-    attr_accessor :include
-    attr_accessor :exclude
     attr_accessor :folder_tags
 
     # include : included tags
@@ -101,7 +98,6 @@ def find_samples(samples_dir)
         if file.downcase.end_with? ("flac")
             return true
         end
-
     end
 
 
@@ -138,10 +134,7 @@ def clean_parent_folders! ( sample_collection )
         Folder.parent_folders_names( folder_tags ).each do | parent_folder_tags |
             parent_samples = sample_collection[ parent_folder_tags ]
             if parent_samples
-                puts "stripped #{folder_tags} : #{parent_folder_tags}"
                 sample_collection[ parent_folder_tags ] = ( parent_samples - samples )
-            else
-                puts "nothing found for striped #{folder_tags} :  #{parent_folder_tags}"
             end
         end
     end
