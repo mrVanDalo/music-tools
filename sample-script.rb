@@ -40,6 +40,8 @@ class Sample
 
 end
 
+
+# todo : only put in the :all folder the stuff which is not in the other folders
 class Folder
 
     attr_accessor :include
@@ -47,13 +49,14 @@ class Folder
 
     # include : included tags
     # exclude : excluded tags
-    def initialize( include_tags , exclude_tags = [] )
+    def initialize(  include_tags , exclude_tags = [], folder_name = include_tags )
+        @folder_name = folder_name
         @include = include_tags
         @exclude = exclude_tags
     end
 
     def name
-        return File.join( @include.map { |tag| tag.to_s } )
+        return File.join( @folder_name.map { |tag| tag.to_s } )
     end
 
     def belongs_to? ( sample )
@@ -67,15 +70,17 @@ class Folder
 end
 
 
-$samples_dir = '/home/renoise/Samples'
-$target_dir = '/home/renoise/Renoise/User Library/Samples'
+$samples_dir = '/home/palo/samples'
+$target_dir = '/home/palo/samples_sorted'
 
 # need to filter out files which are loops from drum/kick (for example)
 
 # tags which will not result in a folder
 $meta_tags = {
     :tr808 => [ 'tr808' ],
-    :mc909 => [ 'mc-909', 'mc909' ],
+    :roland_mc909 => [ 'mc-909', 'mc909' ],
+    :roland_mc202 => [ 'mc-202', 'mc202' ],
+    :yamaha_rx120 => [ 'rx-120', 'rx120' ],
     :kick  => [ "kick", "bassdrum"],
     :hihat => [ "hihat", "hat", 'hit','openhi', 'closedhi'],
     :clap  => [ "clap"],
@@ -84,6 +89,14 @@ $meta_tags = {
     :rim   => [ 'rim'],
     :crash => [ "crash", "cymbal", 'cym'],
     :tom   => ['tom'],
+    :clave => [ "clave",],
+    :bongo => [  "bongo", "conga", ],
+    :shaker => [ "shaker", ],
+    :mallet => [  "mallet", ],
+    :wood => [ "wood", ],
+    :whistle => [ "whistle", ],
+    :stick => [ 'stick', ],
+    :cow => [ 'cow', 'bell' ],
 }
 
 # to filter out pbm
@@ -108,8 +121,7 @@ $folder_tags = {
     :vinyl               => [ 'vinyl' ],
     :pulse               => [ 'pulse' ],
     :drumkit             => [ "drumkit", 'drum', 'kit'],
-    :percussion_acoustic => [ "clave", "tom", "bongo", "conga", "shaker", "mallet", "wood", "whistle", 'stick', 'cow'],
-    :percussion_mixed    => [ "percussion", "perc"],
+    :percussion => [ "percussion", "perc"],
     :loop                => [ "loop" ],
     :instrument          => [ "instrument"],
     :keyboard            => [ "keyboard", "keys"],
@@ -143,20 +155,34 @@ $all_tags = $folder_tags.merge( $meta_tags ).merge( $meta_tags_bpm )
 
 # folders which will be created List( List( FolderName ))
 $folders = [
+    # loops
     Folder.new( [ :loop    , :drumkit ] ),
     Folder.new( [ :loop    , :bass ] ),
     Folder.new( [ :loop    , :kick ] ),
-    Folder.new( [ :loop    , :percussion_acoustic ] ),
-    Folder.new( [ :loop    , :percussion_mixed ] ),
-    Folder.new( [ :drumkit , :kick  ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :hihat ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :clap  ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :snare ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :ride  ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :rim   ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :crash ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :tom   ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :tr808 ] , [ :loop ] ),
+    Folder.new( [ :loop    , :percussion ] ),
+    # drum kits
+    Folder.new( [ :drumkit , :bass ], [ :loop ] ),
+    Folder.new( [ :kick  ]  , [ :loop ], [ :drumkit , :kick  ]   ),
+    Folder.new( [ :hihat ]  , [ :loop ], [ :drumkit , :hihat ]   ),
+    Folder.new( [ :tr808 ]  , [ :loop ], [ :drumkit , :tr808 ]   ),
+    Folder.new( [ :clap  ]  , [ :loop ], [ :drumkit , :clap  ]   ),
+    Folder.new( [ :snare ]  , [ :loop ], [ :drumkit , :snare ]   ),
+    Folder.new( [ :ride  ]  , [ :loop ], [ :drumkit , :ride  ]   ),
+    Folder.new( [ :rim   ]  , [ :loop ], [ :drumkit , :rim   ]   ),
+    Folder.new( [ :crash ]  , [ :loop ], [ :drumkit , :crash ]   ),
+    Folder.new( [ :tom   ]  , [ :loop ], [ :drumkit , :tom   ]   ),
+    Folder.new( [ :clave ]  , [ :loop ], [ :drumkit , :clave ]   ),
+    Folder.new( [ :bongo ]  , [ :loop ], [ :drumkit , :bongo ]   ),
+    Folder.new( [ :shaker ] , [ :loop ], [ :drumkit , :shaker ]  ),
+    Folder.new( [ :mallet ] , [ :loop ], [ :drumkit , :mallet ]  ),
+    Folder.new( [ :wood    ], [ :loop ], [ :drumkit , :wood ]    ),
+    Folder.new( [ :whistle ], [ :loop ], [ :drumkit , :whistle ] ),
+    Folder.new( [ :stick ]  , [ :loop ], [ :drumkit , :stick ]   ),
+    Folder.new( [ :cow ]    , [ :loop ], [ :drumkit , :cow ]     ),
+    # brands
+    Folder.new( [ :yamaha_rx120], [ :loop ], [ :drumkit, :yamaha_rx120] ),
+    Folder.new( [ :roland_mc202], [ :loop ], [ :synth  , :roland_mc202] ),
+    Folder.new( [ :roland_mc909], [ :loop ], [ :sampler, :roland_mc909] ),
 ]
 $folders += $meta_folders_bpm
 $folders += $folder_tags.keys.map do |item|
@@ -192,56 +218,79 @@ def find_samples(samples_dir)
 end
 
 
-$sample_collection = {}
-$folders.each do |folder|
-    $sample_collection[ folder.name ] = []
-end
-
-find_samples($samples_dir).each do |sample|
+def collect_samples( samples ) 
+    sample_collection = {}
     $folders.each do |folder|
-        if (folder.belongs_to?( sample))
-            $sample_collection[ folder.name ] += [sample]
+        sample_collection[ folder.name ] = []
+    end
+
+    samples.each do |sample|
+        $folders.each do |folder|
+            if (folder.belongs_to?( sample))
+                sample_collection[ folder.name ] += [sample]
+            end
         end
     end
+    return sample_collection
 end
 
-def get_depth( values , depth = 1) 
-    names = values.map do |sample|
-        sample.target(depth)
+
+
+def create_link_directives( sample_collection )
+
+    require 'fileutils'
+
+    def get_depth( values , depth = 1) 
+        names = values.map do |sample|
+            sample.target(depth)
+        end
+        if names.uniq.size == names.size
+            return depth
+        else
+            return get_depth( values, depth + 1 )
+        end
     end
-    if names.uniq.size == names.size
-        return depth
-    else
-        return get_depth( values, depth + 1 )
+
+    sample_result = []
+    sample_collection.each do |key, values|
+        depth = get_depth(values)
+        values.each do |sample|
+            sample_result += [
+                {
+                    :folder => File.join( $target_dir, key ),
+                    :target => sample.target(depth),
+                    :source => sample.path,
+                }
+            ]
+        end
+    end
+
+    return sample_result
+end
+
+def clear_target_dir()
+    require 'fileutils'
+    if File.exist?( $target_dir )
+        FileUtils.rm_r $target_dir
     end
 end
 
-$sample_result = []
 
-#puts $sample_collection
 
-$sample_collection.each do |key, values|
-    depth = get_depth(values)
-    values.each do |sample|
-        $sample_result += [
-            {
-                :folder => File.join( $target_dir, key ),
-                :target => sample.target(depth),
-                :source => sample.path,
-            }
-        ]
-    end
-end
+#
+# main
+# ------------------------------------------------------------
+clear_target_dir()
 
-require 'fileutils'
+samples = find_samples($samples_dir)
+sample_collection = collect_samples(samples)
+sample_directives = create_link_directives( sample_collection )
 
-FileUtils.rm_r $target_dir
-
-$sample_result.each do |sample|
-    FileUtils.mkdir_p sample[:folder]
+sample_directives.each do |directive|
+    FileUtils.mkdir_p directive[:folder]
     FileUtils.ln(
-        sample[:source], 
-        File.join( sample[:folder], sample[:target]), 
+        directive[:source], 
+        File.join( directive[:folder], directive[:target]),
         :verbose => true
     )
 end
