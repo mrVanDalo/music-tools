@@ -41,7 +41,7 @@ class Sample
 end
 
 
-# todo : only put in the :all folder the stuff which is not in the other folders
+# todo : only put in the folder the stuff which is not in the other folders
 class Folder
 
     attr_accessor :include
@@ -60,7 +60,7 @@ class Folder
     end
 
     def belongs_to? ( sample )
-        sample_tags = sample.tags + [:all]
+        sample_tags = sample.tags 
         all_tags_included = ( @include - sample_tags).empty?
         no_exclude_tag = ( sample_tags - @exclude ).size == sample_tags.size
 
@@ -118,7 +118,6 @@ def collect_samples( samples )
     end
     return sample_collection
 end
-
 
 
 def create_link_directives( sample_collection )

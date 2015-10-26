@@ -1,4 +1,7 @@
 
+# this file has to define two global variables
+# $folders : [ Folder ]
+# $all_tags: { :tagname => [ String ] }
 
 
 def tag_help( prefix, suffix)
@@ -26,7 +29,6 @@ meta_tags = {
     :bongo   => %w( bongo conga                   ) ,
     :shaker  => %w( shaker                        ) ,
     :mallet  => %w( mallet                        ) ,
-    :cymabl  => %w( cym zym                       ) ,
     :wood    => %w( wood                          ) ,
     :whistle => %w( whistle                       ) ,
     :stick   => %w( stick                         ) ,
@@ -104,10 +106,9 @@ $folders = [
     Folder.new( [ :whistle         ] , [ :loop ] ,  [ :drumkit , :whistle ] ),
     Folder.new( [ :stick           ] , [ :loop ] ,  [ :drumkit , :stick   ] ),
     Folder.new( [ :cow             ] , [ :loop ] ,  [ :drumkit , :cow     ] ),
-    Folder.new( [ :cymbal          ] , [ :loop ] ,  [ :drumkit , :cymbal  ] ),
     # brands
-    # roland
-    Folder.new( [ :roland_tr808           ] , [ :loop ] , [ :drumkit, :roland_tr808 ]   ),
+    # roland tr808
+    Folder.new( [ :roland_tr808           ] , [ :loop ] , [ :drumkit , :roland_tr808           ] ),
     Folder.new( [ :roland_tr808, :kick    ] , [ :loop ] , [ :drumkit , :roland_tr808, :kick    ] ),
     Folder.new( [ :roland_tr808, :hihat   ] , [ :loop ] , [ :drumkit , :roland_tr808, :hihat   ] ),
     Folder.new( [ :roland_tr808, :clap    ] , [ :loop ] , [ :drumkit , :roland_tr808, :clap    ] ),
@@ -121,16 +122,14 @@ $folders = [
     Folder.new( [ :roland_tr808, :shaker  ] , [ :loop ] , [ :drumkit , :roland_tr808, :shaker  ] ),
     Folder.new( [ :roland_tr808, :mallet  ] , [ :loop ] , [ :drumkit , :roland_tr808, :mallet  ] ),
     Folder.new( [ :roland_tr808, :wood    ] , [ :loop ] , [ :drumkit , :roland_tr808, :wood    ] ),
-    Folder.new( [ :roland_tr808, :whistle ] , [ :loop ] , [ :drumkit , :roland_tr808, :whistle ] ),
     Folder.new( [ :roland_tr808, :stick   ] , [ :loop ] , [ :drumkit , :roland_tr808, :stick   ] ),
     Folder.new( [ :roland_tr808, :cow     ] , [ :loop ] , [ :drumkit , :roland_tr808, :cow     ] ),
-    Folder.new( [ :roland_tr808, :cymbal  ] , [ :loop ] , [ :drumkit , :roland_tr808, :cymbal  ] ),
-
+    #
     Folder.new( [ :yamaha_rx120], [ :loop ], [ :drumkit, :yamaha_rx120] ),
     Folder.new( [ :roland_mc202], [ :loop ], [ :synth  , :roland_mc202] ),
     Folder.new( [ :roland_mc909], [ :loop ], [ :sampler, :roland_mc909] ),
 ]
 $folders += meta_folders_bpm
 $folders += folder_tags.keys.map do |item|
-    Folder.new([ item, :all ])
+    Folder.new([ item ])
 end
