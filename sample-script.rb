@@ -47,15 +47,17 @@ class Folder
 
     # include : included tags
     # exclude : excluded tags
-    def initialize( include_tags , exclude_tags = [] )
+    def initialize(  include_tags , exclude_tags = [], folder_name = include_tags )
+        @folder_name = folder_name
         @include = include_tags
         @exclude = exclude_tags
     end
 
     def name
-        return File.join( @include.map { |tag| tag.to_s } )
+        return File.join( @folder_name.map { |tag| tag.to_s } )
     end
 
+    # todo: (include :drum, :kick)( sollte nich noch zusätzlich 
     def belongs_to? ( sample )
         sample_tags = sample.tags + [:all]
         all_tags_included = ( @include - sample_tags).empty?
@@ -75,7 +77,9 @@ $target_dir = '/home/palo/samples_sorted'
 # tags which will not result in a folder
 $meta_tags = {
     :tr808 => [ 'tr808' ],
-    :mc909 => [ 'mc-909', 'mc909' ],
+    :roland_mc909 => [ 'mc-909', 'mc909' ],
+    :roland_mc202 => [ 'mc-202', 'mc202' ],
+    :yamaha_rx120 => [ 'rx-120', 'rx120' ],
     :kick  => [ "kick", "bassdrum"],
     :hihat => [ "hihat", "hat", 'hit','openhi', 'closedhi'],
     :clap  => [ "clap"],
@@ -150,33 +154,34 @@ $all_tags = $folder_tags.merge( $meta_tags ).merge( $meta_tags_bpm )
 
 # folders which will be created List( List( FolderName ))
 $folders = [
+    # loops
     Folder.new( [ :loop    , :drumkit ] ),
     Folder.new( [ :loop    , :bass ] ),
     Folder.new( [ :loop    , :kick ] ),
     Folder.new( [ :loop    , :percussion ] ),
-    Folder.new( [ :drumkit , :kick  ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :hihat ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :clap  ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :snare ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :ride  ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :rim   ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :crash ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :tom   ] , [ :loop ] ),
-    Folder.new( [ :drumkit , :tr808 ] , [ :loop ] ),
-    Folder.new( [ :percussion, :clap  ]  , [ :loop ] ),
-    Folder.new( [ :percussion, :snare ]  , [ :loop ] ),
-    Folder.new( [ :percussion, :ride  ]  , [ :loop ] ),
-    Folder.new( [ :percussion, :rim   ]  , [ :loop ] ),
-    Folder.new( [ :percussion, :crash ]  , [ :loop ] ),
-    Folder.new( [ :percussion, :tom   ]  , [ :loop ] ),
-    Folder.new( [ :percussion, :clave ]  , [ :loop ] ),
-    Folder.new( [ :percussion, :bongo ]  , [ :loop ] ),
-    Folder.new( [ :percussion, :shaker ] , [ :loop ] ),
-    Folder.new( [ :percussion, :mallet ] , [ :loop ] ),
-    Folder.new( [ :percussion, :wood ]   , [ :loop ] ),
-    Folder.new( [ :percussion, :whistle ], [ :loop ] ),
-    Folder.new( [ :percussion, :stick ]  , [ :loop ] ),
-    Folder.new( [ :percussion, :cow ]    , [ :loop ] ),
+    # drum kits
+    Folder.new( [ :drumkit , :bass ], [ :loop ] ),
+    Folder.new( [ :kick  ]  , [ :loop ], [ :drumkit , :kick  ]   ),
+    Folder.new( [ :hihat ]  , [ :loop ], [ :drumkit , :hihat ]   ),
+    Folder.new( [ :tr808 ]  , [ :loop ], [ :drumkit , :tr808 ]   ),
+    Folder.new( [ :clap  ]  , [ :loop ], [ :drumkit , :clap  ]   ),
+    Folder.new( [ :snare ]  , [ :loop ], [ :drumkit , :snare ]   ),
+    Folder.new( [ :ride  ]  , [ :loop ], [ :drumkit , :ride  ]   ),
+    Folder.new( [ :rim   ]  , [ :loop ], [ :drumkit , :rim   ]   ),
+    Folder.new( [ :crash ]  , [ :loop ], [ :drumkit , :crash ]   ),
+    Folder.new( [ :tom   ]  , [ :loop ], [ :drumkit , :tom   ]   ),
+    Folder.new( [ :clave ]  , [ :loop ], [ :drumkit , :clave ]   ),
+    Folder.new( [ :bongo ]  , [ :loop ], [ :drumkit , :bongo ]   ),
+    Folder.new( [ :shaker ] , [ :loop ], [ :drumkit , :shaker ]  ),
+    Folder.new( [ :mallet ] , [ :loop ], [ :drumkit , :mallet ]  ),
+    Folder.new( [ :wood    ], [ :loop ], [ :drumkit , :wood ]    ),
+    Folder.new( [ :whistle ], [ :loop ], [ :drumkit , :whistle ] ),
+    Folder.new( [ :stick ]  , [ :loop ], [ :drumkit , :stick ]   ),
+    Folder.new( [ :cow ]    , [ :loop ], [ :drumkit , :cow ]     ),
+    # brands
+    Folder.new( [ :yamaha_rx120], [ :loop ], [ :drumkit, :yamaha_rx120] ),
+    Folder.new( [ :roland_mc202], [ :loop ], [ :synth  , :roland_mc202] ),
+    Folder.new( [ :roland_mc909], [ :loop ], [ :sampler, :roland_mc909] ),
 ]
 $folders += $meta_folders_bpm
 $folders += $folder_tags.keys.map do |item|
