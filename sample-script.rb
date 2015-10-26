@@ -67,8 +67,8 @@ class Folder
 end
 
 
-$samples_dir = '/home/renoise/Samples'
-$target_dir = '/home/renoise/Renoise/User Library/Samples'
+$samples_dir = '/home/palo/samples'
+$target_dir = '/home/palo/samples_sorted'
 
 # need to filter out files which are loops from drum/kick (for example)
 
@@ -235,7 +235,9 @@ end
 
 require 'fileutils'
 
-FileUtils.rm_r $target_dir
+if File.exist?( $target_dir )
+    FileUtils.rm_r $target_dir
+end
 
 $sample_result.each do |sample|
     FileUtils.mkdir_p sample[:folder]
