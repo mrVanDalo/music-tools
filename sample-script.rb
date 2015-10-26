@@ -192,17 +192,20 @@ def find_samples(samples_dir)
 end
 
 
-$sample_collection = {}
-$folders.each do |folder|
-    $sample_collection[ folder.name ] = []
-end
-
-find_samples($samples_dir).each do |sample|
+def collect_samples( samples ) 
+    sample_collection = {}
     $folders.each do |folder|
-        if (folder.belongs_to?( sample))
-            $sample_collection[ folder.name ] += [sample]
+        sample_collection[ folder.name ] = []
+    end
+
+    samples.each do |sample|
+        $folders.each do |folder|
+            if (folder.belongs_to?( sample))
+                sample_collection[ folder.name ] += [sample]
+            end
         end
     end
+    return sample_collection
 end
 
 def get_depth( values , depth = 1) 
@@ -218,9 +221,8 @@ end
 
 $sample_result = []
 
-#puts $sample_collection
 
-$sample_collection.each do |key, values|
+collect_samples(find_samples($samples_dir)).each do |key, values|
     depth = get_depth(values)
     values.each do |sample|
         $sample_result += [
