@@ -14,7 +14,8 @@ end
 
 # to filter out bpm
 meta_tags_bpm = (90..200).map do |bpm|
-    { "#{bpm}bpm" => tag_help( bpm, "bpm" ) }
+    #{ "#{bpm}bpm" => tag_help( bpm, "bpm" ) }
+    { "#{bpm}bpm" => [ bpm.to_s ] }
 end
 meta_tags_bpm    = meta_tags_bpm.reduce( {}, :merge )
 meta_folders_bpm = meta_tags_bpm.keys.map do |tag|
@@ -25,8 +26,9 @@ $bpm_tags = meta_tags_bpm.keys
 # tags which will result in a folder (:all)
 folder_tags = {
     :pulse        => %w( pulse                       ) ,
-    :loop         => %w( loop bpm                    ) ,
     :keyboard     => %w( keyboard keys               ) ,
+    :loop         => %w( loop bpm ),
+    #:loop         => [ 'loop' ] + (90..200).map { |bpm| bpm.to_s }, 
     :guitar       => %w( guitar                      ) ,
     :groove       => %w( groove groovy               ) ,
     :minimal      => %w( minimal 8bit) ,
