@@ -40,6 +40,8 @@ class Sample
 
 end
 
+
+# todo : only put in the :all folder the stuff which is not in the other folders
 class Folder
 
     attr_accessor :include
@@ -57,7 +59,6 @@ class Folder
         return File.join( @folder_name.map { |tag| tag.to_s } )
     end
 
-    # todo: (include :drum, :kick)( sollte nich noch zusätzlich 
     def belongs_to? ( sample )
         sample_tags = sample.tags + [:all]
         all_tags_included = ( @include - sample_tags).empty?
