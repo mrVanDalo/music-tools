@@ -2,14 +2,14 @@
 
 
 def tag_help( prefix, suffix)
-    [ '-', '_', ' ', '', '#'].map do |separator|
+    [ '-', '_', ' ', '.', '', '#'].map do |separator|
         "#{prefix}#{separator}#{suffix}"
     end
 end
 
 # need to filter out files which are loops from drum/kick (for example)
 # tags which will not result in a folder
-$meta_tags = {
+meta_tags = {
     :roland_tr808 => tag_help( 'tr', '808'),
     :roland_mc909 => tag_help( 'mc', '909'),
     :roland_mc202 => tag_help( 'mc', '202'),
@@ -33,25 +33,17 @@ $meta_tags = {
     :cow     => %w( cow bell                      ) ,
 }
 
-# to filter out pbm
-$meta_tags_bpm = (90..200).map do |bpm|
-    { "#{bpm}bpm" =>
-      [
-          "#{bpm}bpm",
-          "#{bpm}-bpm",
-          "#{bpm}_bpm",
-          "#{bpm} bpm",
-          "#{bpm}.bpm",
-      ]
-    }
+# to filter out bpm
+meta_tags_bpm = (90..200).map do |bpm|
+    { "#{bpm}bpm" => tag_help( bpm, "bpm" ) }
 end
-$meta_tags_bpm = $meta_tags_bpm.reduce( {}, :merge )
-$meta_folders_bpm = $meta_tags_bpm.keys.map do |tag|
+meta_tags_bpm    = meta_tags_bpm.reduce( {}, :merge )
+meta_folders_bpm = meta_tags_bpm.keys.map do |tag|
     Folder.new([ :loop, tag ])
 end
 
 # tags which will result in a folder (:all)
-$folder_tags = {
+folder_tags = {
     :vinyl        => %w( vinyl                       ) ,
     :pulse        => %w( pulse                       ) ,
     :drumkit      => %w( drumkit drum kit            ) ,
@@ -85,7 +77,7 @@ $folder_tags = {
 }
 
 # tags to extract from sample Map( TagName , List( StringMatches ) )
-$all_tags = $folder_tags.merge( $meta_tags ).merge( $meta_tags_bpm )
+$all_tags = folder_tags.merge( meta_tags ).merge( meta_tags_bpm )
 
 # folders which will be created List( List( FolderName ))
 $folders = [
@@ -138,7 +130,7 @@ $folders = [
     Folder.new( [ :roland_mc202], [ :loop ], [ :synth  , :roland_mc202] ),
     Folder.new( [ :roland_mc909], [ :loop ], [ :sampler, :roland_mc909] ),
 ]
-$folders += $meta_folders_bpm
-$folders += $folder_tags.keys.map do |item|
+$folders += meta_folders_bpm
+$folders += folder_tags.keys.map do |item|
     Folder.new([ item, :all ])
 end
