@@ -119,11 +119,12 @@ meta_tags = {
     :funkdisco    => %w( disco funk                  ) ,
     :ambient => %w( ambient ) ,
 
+}
 
 
 
 
-
+brand_tags = {
 
     # brands
     :akai_mpc2000      => match_glue( %w( mpc 2000                )  ) ,
@@ -261,7 +262,7 @@ meta_tags = {
 }
 
 # tags to extract from sample Map( TagName , List( StringMatches ) )
-$all_tags = meta_tags.merge( meta_tags_bpm )
+$all_tags = meta_tags.merge( meta_tags_bpm ).merge( brand_tags )
 
 
 
@@ -387,151 +388,27 @@ $drum_tags = [
 def drum_kit( brand_tag , drum_tags )
 
     all_combinations = drum_tags.map do |tag|
-        [
-            Folder.new( [ brand_tag, tag ].flatten , [ :loop ] , [ :drumkit , brand_tag, tag ].flatten ),
-            Folder.new( [ brand_tag, tag ].flatten , [ :loop ] , [ :drumkit , tag, brand_tag ].flatten ),
-        ]
+        Folder.new( [ brand_tag, tag ].flatten , [ :loop ] , [ :drumkit , tag, brand_tag ].flatten )
     end
 
     if brand_tag.empty?
-        top_level = Folder.new( [ brand_tag ] , [ :loop ] , [ :drumkit , brand_tag ] ) 
-        [top_level] + all_combinations
+        top_level          = [ Folder.new( [ brand_tag ] , [ :loop ] , [ :brand, brand_tag, :drumkit  ] ) ]
+        brand_combinations = drum_tags.map do |tag|
+            Folder.new( [ brand_tag, tag ].flatten , [ :loop ] , [ :brand, brand_tag, :drumkit , tag ].flatten )
+        end
     else
-        all_combinations
+        top_level = []
+        brand_combinations = []
     end
+
+    top_level + all_combinations + brand_combinations
 end
 
 $folders += drum_kit( []            , $drum_tags )
-$folders += drum_kit( :akai_mpc2000      , $drum_tags )
-$folders += drum_kit( :akai_xe8          , $drum_tags )
-$folders += drum_kit( :alesis_hr16       , $drum_tags )
-$folders += drum_kit( :arp_axxe          , $drum_tags )
-$folders += drum_kit( :austin_arb6       , $drum_tags )
-$folders += drum_kit( :boss_dr_110       , $drum_tags )
-$folders += drum_kit( :boss_dr_220       , $drum_tags )
-$folders += drum_kit( :boss_dr_55        , $drum_tags )
-$folders += drum_kit( :boss_dr_pad_drp   , $drum_tags )
-$folders += drum_kit( :boss_hc_2         , $drum_tags )
-$folders += drum_kit( :boss_pc_2         , $drum_tags )
-$folders += drum_kit( :boss_ps_2         , $drum_tags )
-$folders += drum_kit( :boss_sp_505       , $drum_tags )
-$folders += drum_kit( :casio_cz_230S     , $drum_tags )
-$folders += drum_kit( :casio_ma_101      , $drum_tags )
-$folders += drum_kit( :casio_mt_100      , $drum_tags )
-$folders += drum_kit( :casio_mt_18       , $drum_tags )
-$folders += drum_kit( :casio_mt_500      , $drum_tags )
-$folders += drum_kit( :casio_mt_800      , $drum_tags )
-$folders += drum_kit( :casio_pt_82       , $drum_tags )
-$folders += drum_kit( :casio_rapman      , $drum_tags )
-$folders += drum_kit( :casio_rz1         , $drum_tags )
-$folders += drum_kit( :casio_sa10        , $drum_tags )
-$folders += drum_kit( :casio_sk1         , $drum_tags )
-$folders += drum_kit( :casio_sk5         , $drum_tags )
-$folders += drum_kit( :chaser_pr80       , $drum_tags )
-$folders += drum_kit( :cheetah_md16      , $drum_tags )
-$folders += drum_kit( :cheetah_specdrum  , $drum_tags )
-$folders += drum_kit( :coron_drum        , $drum_tags )
-$folders += drum_kit( :daytone_drum      , $drum_tags )
-$folders += drum_kit( :denon_crb90       , $drum_tags )
-$folders += drum_kit( :drboehm_s78       , $drum_tags )
-$folders += drum_kit( :drumfire_df500    , $drum_tags )
-$folders += drum_kit( :eko_musicbox12    , $drum_tags )
-$folders += drum_kit( :eko_ritmo20       , $drum_tags )
-$folders += drum_kit( :ensoniq_asrX      , $drum_tags )
-$folders += drum_kit( :ensoniq_eps       , $drum_tags )
-$folders += drum_kit( :estradin_pulsar   , $drum_tags )
-$folders += drum_kit( :forat_f9000       , $drum_tags )
-$folders += drum_kit( :fricke_mfb301     , $drum_tags )
-$folders += drum_kit( :fricke_mfb501     , $drum_tags )
-$folders += drum_kit( :fricke_mfb512     , $drum_tags )
-$folders += drum_kit( :fricke_mfb712     , $drum_tags )
-$folders += drum_kit( :gem_drum15        , $drum_tags )
-$folders += drum_kit( :hammond_auto64    , $drum_tags )
-$folders += drum_kit( :hammond_rhythm2   , $drum_tags )
-$folders += drum_kit( :kawai_acr20       , $drum_tags )
-$folders += drum_kit( :kawai_k1          , $drum_tags )
-$folders += drum_kit( :kawai_r100        , $drum_tags )
-$folders += drum_kit( :kawai_r50         , $drum_tags )
-$folders += drum_kit( :kawai_sx240       , $drum_tags )
-$folders += drum_kit( :kawai_xd5         , $drum_tags )
-$folders += drum_kit( :kay_r8            , $drum_tags )
-$folders += drum_kit( :keio_checkmate    , $drum_tags )
-$folders += drum_kit( :ketron_sd5        , $drum_tags )
-$folders += drum_kit( :korg_ddd1         , $drum_tags )
-$folders += drum_kit( :korg_ddm110       , $drum_tags )
-$folders += drum_kit( :korg_ddm220       , $drum_tags )
-$folders += drum_kit( :korg_drm1         , $drum_tags )
-$folders += drum_kit( :korg_kpr77        , $drum_tags )
-$folders += drum_kit( :korg_kr33         , $drum_tags )
-$folders += drum_kit( :korg_kr55         , $drum_tags )
-$folders += drum_kit( :korg_minipops     , $drum_tags )
-$folders += drum_kit( :korg_mp7          , $drum_tags )
-$folders += drum_kit( :korg_prophecy     , $drum_tags )
-$folders += drum_kit( :korg_prowave      , $drum_tags )
-$folders += drum_kit( :korg_pss50        , $drum_tags )
-$folders += drum_kit( :korg_radias       , $drum_tags )
-$folders += drum_kit( :korg_sr120        , $drum_tags )
-$folders += drum_kit( :korg_t1           , $drum_tags )
-$folders += drum_kit( :korg_t3           , $drum_tags )
-$folders += drum_kit( :kurzweil_k2000    , $drum_tags )
-$folders += drum_kit( :linn_adrenalinn1  , $drum_tags )
-$folders += drum_kit( :linn_lm1          , $drum_tags )
-$folders += drum_kit( :maestro_g2        , $drum_tags )
-$folders += drum_kit( :moog_modular55    , $drum_tags )
-$folders += drum_kit( :moog_voyager      , $drum_tags )
-$folders += drum_kit( :mti_ao1           , $drum_tags )
-$folders += drum_kit( :mxr_185           , $drum_tags )
-$folders += drum_kit( :nintendo          , $drum_tags )
-$folders += drum_kit( :panasonic_rd9844  , $drum_tags )
-$folders += drum_kit( :pearl_drx1        , $drum_tags )
-$folders += drum_kit( :rhodes_polaris    , $drum_tags )
-$folders += drum_kit( :roland_cr1000     , $drum_tags )
-$folders += drum_kit( :roland_cr68       , $drum_tags )
-$folders += drum_kit( :roland_cr78       , $drum_tags )
-$folders += drum_kit( :roland_cr80       , $drum_tags )
-$folders += drum_kit( :roland_d110       , $drum_tags )
-$folders += drum_kit( :roland_d70        , $drum_tags )
-$folders += drum_kit( :roland_ddr30      , $drum_tags )
-$folders += drum_kit( :roland_e10        , $drum_tags )
-$folders += drum_kit( :roland_mc202      , $drum_tags )
-$folders += drum_kit( :roland_mc909      , $drum_tags )
-$folders += drum_kit( :roland_mt32       , $drum_tags )
-$folders += drum_kit( :roland_pb300      , $drum_tags )
-$folders += drum_kit( :roland_sh3a       , $drum_tags )
-$folders += drum_kit( :roland_sp606      , $drum_tags )
-$folders += drum_kit( :roland_spd8       , $drum_tags )
-$folders += drum_kit( :roland_tr33       , $drum_tags )
-$folders += drum_kit( :roland_tr41       , $drum_tags )
-$folders += drum_kit( :roland_tr505      , $drum_tags )
-$folders += drum_kit( :roland_tr55       , $drum_tags )
-$folders += drum_kit( :roland_tr626      , $drum_tags )
-$folders += drum_kit( :roland_tr66       , $drum_tags )
-$folders += drum_kit( :roland_tr707      , $drum_tags )
-$folders += drum_kit( :roland_tr727      , $drum_tags )
-$folders += drum_kit( :roland_tr77       , $drum_tags )
-$folders += drum_kit( :roland_tr808      , $drum_tags )
-$folders += drum_kit( :roland_tr909      , $drum_tags )
-$folders += drum_kit( :simmons_sds1000   , $drum_tags )
-$folders += drum_kit( :simmons_sds200    , $drum_tags )
-$folders += drum_kit( :simmons_sds7      , $drum_tags )
-$folders += drum_kit( :technics_ax5      , $drum_tags )
-$folders += drum_kit( :technics_pcm_dp50 , $drum_tags )
-$folders += drum_kit( :wersi_prisma      , $drum_tags )
-$folders += drum_kit( :wiard_300         , $drum_tags )
-$folders += drum_kit( :yamaha_an200      , $drum_tags )
-$folders += drum_kit( :yamaha_cs15       , $drum_tags )
-$folders += drum_kit( :yamaha_cs40M      , $drum_tags )
-$folders += drum_kit( :yamaha_dd10       , $drum_tags )
-$folders += drum_kit( :yamaha_dd11       , $drum_tags )
-$folders += drum_kit( :yamaha_dd5        , $drum_tags )
-$folders += drum_kit( :yamaha_ptx8       , $drum_tags )
-$folders += drum_kit( :yamaha_rx11       , $drum_tags )
-$folders += drum_kit( :yamaha_rx120      , $drum_tags )
-$folders += drum_kit( :yamaha_rx17       , $drum_tags )
-$folders += drum_kit( :yamaha_rx21       , $drum_tags )
-$folders += drum_kit( :yamaha_rx5        , $drum_tags )
-$folders += drum_kit( :yamaha_shs200     , $drum_tags )
-$folders += drum_kit( :yamaha_tx16       , $drum_tags )
+brand_tags.keys.each do |tag|
+    $folders += drum_kit( tag , $drum_tags )
+end
+
 
 
 
