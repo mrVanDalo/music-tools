@@ -53,9 +53,9 @@ $bpm_tags = meta_tags_bpm.keys
 
 
 
-# ============================================================
-# tags which will result in a folder (:all)
-folder_tags = {
+# tags which will not result in a folder
+meta_tags = {
+    # stuff (sort me )
     :pulse        => %w( pulse                       ) ,
     :keyboard     => %w( keyboard keys               ) ,
     :loop         => %w( loop bpm ),
@@ -72,10 +72,18 @@ folder_tags = {
     :piano        => %w( piano keyboard              ) ,
     :organ        => %w( organ                       ) ,
     :deep         => %w( deep                        ) ,
-}
-
-# tags which will not result in a folder
-meta_tags = {
+    :strings      => %w( string pizzi                ) ,
+    :synth        => %w( synth                       ) ,
+    :pads         => %w( pad atmo                    ) ,
+    :lead         => %w( lead                        ) ,
+    :bass         => %w( bass                        ) ,
+    :vocal        => %w( vocal vox female male human ) ,
+    :fx           => %w( fx                          ) ,
+    :sweep        => %w( woosh sweep                 ) ,
+    :glitch => %w( glitch ),
+    :vinyl        => %w( vinyl                       ) ,
+    :instrument   => %w( instrument                  ) ,
+    # drumkit
     :drumkit      => %w( drumkit drum kit            ) ,
     :kick    => %w( kick bassdrum                 ) ,
     :hihat   => %w( hihat hat hit openhi closedhi ) ,
@@ -92,30 +100,21 @@ meta_tags = {
     :wood    => %w( wood                          ) ,
     :whistle => %w( whistle                       ) ,
     :stick   => %w( stick                         ) ,
-    :cow     => %w( cow bell                      ) ,
+    :bell => %w( cow bell                      ) ,
     :maraca  => %w( maraca ),
     :percussion   => %w( percussion perc             ) ,
-    # stuff
-    :strings      => %w( string pizzi                ) ,
-    :synth        => %w( synth                       ) ,
-    :pads         => %w( pad atmo                    ) ,
-    :lead         => %w( lead                        ) ,
-    :bass         => %w( bass                        ) ,
-    :vocal        => %w( vocal vox female male human ) ,
-    :fx           => %w( fx                          ) ,
-    :sweep        => %w( woosh sweep                 ) ,
-    :glitch => %w( glitch ),
-    :vinyl        => %w( vinyl                       ) ,
-    :instrument   => %w( instrument                  ) ,
-    # pack names
-    :chipshop => %w( chipshop ),
+    # packages
+    :chipshop    => %w( chipshop    ) ,
+    :loopmasters => %w( loopmasters ) ,
+    :ueberschall => %w( ueberschall ) ,
+    :drum_zone   => %w( drum_zone   ) ,
     # brands
-    :roland_tr808 => match_glue( 'tr', '808'),
-    :roland_mc909 => match_glue( 'mc', '909'),
-    :roland_mc202 => match_glue( 'mc', '202'),
+    :roland_tr808    => match_glue( 'tr', '808'),
+    :roland_mc909    => match_glue( 'mc', '909'),
+    :roland_mc202    => match_glue( 'mc', '202'),
     :roland_jupiter8 => match_glue( 'jp', '8') + match_glue( 'jupiter' , '8' ),
-    :moog => %w( moog ),
-    :yamaha_rx120 => match_glue( 'rx', '120'),
+    :moog            => %w( moog ),
+    :yamaha_rx120    => match_glue( 'rx', '120'),
     # genre
     :dnb       => %w( dnb drum_n_bass drum_and_bass ) ,
     :dub       => %w( dub                           ) ,
@@ -128,27 +127,16 @@ meta_tags = {
 }
 
 # tags to extract from sample Map( TagName , List( StringMatches ) )
-$all_tags = folder_tags.merge( meta_tags ).merge( meta_tags_bpm )
+$all_tags = meta_tags.merge( meta_tags_bpm )
 
 
-# ============================================================
-# add_loop
-def add_loop( tag )
-    folder = [ Folder.new( [ :loop, tag ] ) ]
-    folder_bpm = $bpm_tags.map do |bpm_tag| 
-        [
-            Folder.new( [ :loop , tag     , bpm_tag ] ),
-            Folder.new( [ :loop , bpm_tag , tag     ] )
-        ]
-    end
-    folder + folder_bpm.flatten
-end
 
-def help_instrument( tag )
-    [
-        Folder.new( [ :moog ], [ :loop ], [ :instrument, :moog ])
-    ]
-end
+
+
+
+
+
+
 
 
 # folders which will be created List( List( FolderName ))
@@ -157,114 +145,64 @@ $folders = [
     Folder.new( [ :deep, :kick ], [:loop]),
     Folder.new( [ :deep, :hihat], [:loop]),
     Folder.new( [ :deep, :snare], [:loop]),
-    Folder.new( [ :organ, :chipshop ]),
     #
     Folder.new( [ :ambient ] , [ :loop ] ) ,
     Folder.new( [ :pads  ] , [ :loop ] ) ,
     Folder.new( [ :lead  ] , [ :loop ] ) ,
     Folder.new( [ :vocal ] , [ :loop ] ) ,
-    # bass
-    Folder.new( [ :bass            ] , [ :loop , :kick ] ) ,
-    Folder.new( [ :bass, :deep     ] , [:loop, :kick   ] ),
-    Folder.new( [ :bass, :kick     ] , [ :loop         ] ) ,
-    Folder.new( [ :bass, :chipshop ] , [ :loop , :kick ] ) ,
     #
-    Folder.new( [ :lead, :chipshop ], [:loop]),
-    Folder.new( [ :guitar, :chipshop ] , [ :loop ] ) ,
     #
     Folder.new( [ :instrument ], [ :loop ] ),
     #
-    Folder.new( [ :fx   , :chipshop ] ) ,
     Folder.new( [ :sweep            ] , [ ] , [ :fx , :sweep  ] ) ,
     Folder.new( [ :glitch           ] , [ ] , [ :fx , :glitch ] ) ,
     #
     Folder.new( [ :strings        ] , [ :loop ] ) ,
-    Folder.new( [ :loop, :strings ]             ) ,
     #
     Folder.new( [ :synth          ] , [ :loop, :drumkit, :kick, :hihat, :clap, :snare,
-                                        :ride, :crash, :rim, :tom, :bongo, :percussion, :shaker, :cow,
+                                        :ride, :crash, :rim, :tom, :bongo, :percussion, :shaker, :bell,
                                         :clave,:whistle, :maraca ] ) ,
     Folder.new( [ :loop, :synth   ]             ) ,
     Folder.new( [ :noise  ] , [ :loop ], [ :synth, :noise ] ) ,
     Folder.new( [ :synth, :glitch ] , [ :loop ] ) ,
-    Folder.new( [ :synth, :chipshop ] , [ :loop ] ) ,
-    # drum kits
-    Folder.new( [ :drumkit         ] , [ :loop ]),
+    # drum
     Folder.new( [ :drumkit , :bass ] , [ :loop ]),
     Folder.new( [ :drumkit , :fx   ] , [ :loop ]),
-    Folder.new( [ :percussion      ] , [ :loop ] , [ :drumkit, :percussion ]),
-    Folder.new( [ :kick            ] , [ :loop ] , [ :drumkit , :kick    ] ),
-    Folder.new( [ :hihat           ] , [ :loop ] , [ :drumkit , :hihat   ] ),
-    Folder.new( [ :clap            ] , [ :loop ] , [ :drumkit , :clap    ] ),
-    Folder.new( [ :snare           ] , [ :loop ] , [ :drumkit , :snare   ] ),
-    Folder.new( [ :ride            ] , [ :loop ] , [ :drumkit , :ride    ] ),
-    Folder.new( [ :rim             ] , [ :loop ] , [ :drumkit , :rim     ] ),
-    Folder.new( [ :crash           ] , [ :loop ] , [ :drumkit , :crash   ] ),
-    Folder.new( [ :tom             ] , [ :loop ] , [ :drumkit , :tom     ] ),
-    Folder.new( [ :clave           ] , [ :loop ] , [ :drumkit , :clave   ] ),
-    Folder.new( [ :bongo           ] , [ :loop ] , [ :drumkit , :bongo   ] ),
-    Folder.new( [ :shaker          ] , [ :loop ] , [ :drumkit , :shaker  ] ),
-    Folder.new( [ :mallet          ] , [ :loop ] , [ :drumkit , :mallet  ] ),
-    Folder.new( [ :wood            ] , [ :loop ] , [ :drumkit , :wood    ] ),
-    Folder.new( [ :whistle         ] , [ :loop ] , [ :drumkit , :whistle ] ),
-    Folder.new( [ :stick           ] , [ :loop ] , [ :drumkit , :stick   ] ),
-    Folder.new( [ :cow             ] , [ :loop ] , [ :drumkit , :cow     ] ),
-    Folder.new( [ :maraca          ] , [ :loop ] , [ :drumkit , :maraca  ] ),
     # brands
     Folder.new( [ :roland_mc202], [ :loop ], [ :synth  , :roland_mc202] ),
-] 
+]
 
-def brand_drum_kit( brand_tag )
-    [
-        Folder.new( [ brand_tag              ] , [ :loop ] , [ :drumkit , brand_tag              ] ),
-        Folder.new( [ brand_tag, :kick       ] , [ :loop ] , [ :drumkit , brand_tag, :kick       ] ),
-        Folder.new( [ brand_tag, :hihat      ] , [ :loop ] , [ :drumkit , brand_tag, :hihat      ] ),
-        Folder.new( [ brand_tag, :clap       ] , [ :loop ] , [ :drumkit , brand_tag, :clap       ] ),
-        Folder.new( [ brand_tag, :snare      ] , [ :loop ] , [ :drumkit , brand_tag, :snare      ] ),
-        Folder.new( [ brand_tag, :ride       ] , [ :loop ] , [ :drumkit , brand_tag, :ride       ] ),
-        Folder.new( [ brand_tag, :rim        ] , [ :loop ] , [ :drumkit , brand_tag, :rim        ] ),
-        Folder.new( [ brand_tag, :crash      ] , [ :loop ] , [ :drumkit , brand_tag, :crash      ] ),
-        Folder.new( [ brand_tag, :tom        ] , [ :loop ] , [ :drumkit , brand_tag, :tom        ] ),
-        Folder.new( [ brand_tag, :clave      ] , [ :loop ] , [ :drumkit , brand_tag, :clave      ] ),
-        Folder.new( [ brand_tag, :bongo      ] , [ :loop ] , [ :drumkit , brand_tag, :bongo      ] ),
-        Folder.new( [ brand_tag, :shaker     ] , [ :loop ] , [ :drumkit , brand_tag, :shaker     ] ),
-        Folder.new( [ brand_tag, :mallet     ] , [ :loop ] , [ :drumkit , brand_tag, :mallet     ] ),
-        Folder.new( [ brand_tag, :wood       ] , [ :loop ] , [ :drumkit , brand_tag, :wood       ] ),
-        Folder.new( [ brand_tag, :stick      ] , [ :loop ] , [ :drumkit , brand_tag, :stick      ] ),
-        Folder.new( [ brand_tag, :cow        ] , [ :loop ] , [ :drumkit , brand_tag, :cow        ] ),
-        Folder.new( [ brand_tag, :maraca     ] , [ :loop ] , [ :drumkit , brand_tag, :maraca     ] ),
-        Folder.new( [ brand_tag, :fx         ] , [ :loop ] , [ :drumkit , brand_tag, :fx         ] ),
-        Folder.new( [ brand_tag, :percussion ] , [ :loop ] , [ :drumkit , brand_tag, :percussion ] ),
 
-        Folder.new( [ brand_tag, :kick       ] , [ :loop ] , [ :drumkit , :kick       , brand_tag ] ),
-        Folder.new( [ brand_tag, :hihat      ] , [ :loop ] , [ :drumkit , :hihat      , brand_tag ] ),
-        Folder.new( [ brand_tag, :clap       ] , [ :loop ] , [ :drumkit , :clap       , brand_tag ] ),
-        Folder.new( [ brand_tag, :snare      ] , [ :loop ] , [ :drumkit , :snare      , brand_tag ] ),
-        Folder.new( [ brand_tag, :ride       ] , [ :loop ] , [ :drumkit , :ride       , brand_tag ] ),
-        Folder.new( [ brand_tag, :rim        ] , [ :loop ] , [ :drumkit , :rim        , brand_tag ] ),
-        Folder.new( [ brand_tag, :crash      ] , [ :loop ] , [ :drumkit , :crash      , brand_tag ] ),
-        Folder.new( [ brand_tag, :tom        ] , [ :loop ] , [ :drumkit , :tom        , brand_tag ] ),
-        Folder.new( [ brand_tag, :clave      ] , [ :loop ] , [ :drumkit , :clave      , brand_tag ] ),
-        Folder.new( [ brand_tag, :bongo      ] , [ :loop ] , [ :drumkit , :bongo      , brand_tag ] ),
-        Folder.new( [ brand_tag, :shaker     ] , [ :loop ] , [ :drumkit , :shaker     , brand_tag ] ),
-        Folder.new( [ brand_tag, :mallet     ] , [ :loop ] , [ :drumkit , :mallet     , brand_tag ] ),
-        Folder.new( [ brand_tag, :wood       ] , [ :loop ] , [ :drumkit , :wood       , brand_tag ] ),
-        Folder.new( [ brand_tag, :stick      ] , [ :loop ] , [ :drumkit , :stick      , brand_tag ] ),
-        Folder.new( [ brand_tag, :cow        ] , [ :loop ] , [ :drumkit , :cow        , brand_tag ] ),
-        Folder.new( [ brand_tag, :maraca     ] , [ :loop ] , [ :drumkit , :maraca     , brand_tag ] ),
-        Folder.new( [ brand_tag, :fx         ] , [ :loop ] , [ :drumkit , :fx         , brand_tag ] ),
-        Folder.new( [ brand_tag, :percussion ] , [ :loop ] , [ :drumkit , :percussion , brand_tag ] ),
-    ]
+
+
+# ============================================================
+# Bass
+
+bass = [
+    Folder.new( [ :bass            ] , [ :loop , :kick ] ) ,
+    Folder.new( [ :bass, :deep     ] , [ :loop , :kick ] ),
+    Folder.new( [ :bass, :kick     ] , [ :loop         ] ) ,
+]
+
+$folders += bass
+
+
+
+
+# ============================================================
+# add_loop
+def add_loop( tag )
+    folder = [ Folder.new( [ :loop, tag ] ) ]
+    folder_bpm = $bpm_tags.map do |bpm_tag| 
+        [
+            Folder.new( [ :loop , tag     , bpm_tag ].flatten ),
+            Folder.new( [ :loop , bpm_tag , tag     ].flatten )
+        ]
+    end
+    folder + folder_bpm.flatten
 end
 
-$folders += brand_drum_kit( :roland_tr808 )
-$folders += brand_drum_kit( :roland_mc909 )
-$folders += brand_drum_kit( :yamaha_rx120 )
-$folders += brand_drum_kit( :chipshop )
-
-$folders += help_instrument( :roland_jupiter8)
-$folders += help_instrument( :moog )
-
+$folders += add_loop( [] )
 $folders += add_loop( :dnb        )
 $folders += add_loop( :dub        )
 $folders += add_loop( :jazz       )
@@ -283,9 +221,84 @@ $folders += add_loop( :drumkit    )
 $folders += add_loop( :kick       )
 $folders += add_loop( :percussion )
 $folders += add_loop( :glitch     )
-$folders += add_loop( :deep )
+$folders += add_loop( :deep       )
+$folders += add_loop( :strings    )
+
+
+# ============================================================
+def add_instrument( tag )
+    [
+        Folder.new( [ :moog ], [ :loop ], [ :instrument, :moog ])
+    ]
+end
+
+$folders += add_instrument( :roland_jupiter8 )
+$folders += add_instrument( :moog )
+
+
+
+
+
+
+
+# ============================================================
+# drums
+$drum_tags = [ 
+    :kick ,:hihat ,:clap ,:snare ,:ride ,
+    :rim ,:crash ,:tom ,:clave, :bongo, :whistle, 
+    :shaker, :mallet ,:wood ,:stick , :bell,
+    :maraca, :fx ,:percussion 
+]
+
+def drum_kit( brand_tag , drum_tags )
+
+    all_combinations = drum_tags.map do |tag|
+        [
+            Folder.new( [ brand_tag, tag ].flatten , [ :loop ] , [ :drumkit , brand_tag, tag ].flatten ),
+            Folder.new( [ brand_tag, tag ].flatten , [ :loop ] , [ :drumkit , tag, brand_tag ].flatten ),
+        ]
+    end
+
+    if brand_tag.empty?
+        top_level = Folder.new( [ brand_tag ] , [ :loop ] , [ :drumkit , brand_tag ] ) 
+        [top_level] + all_combinations
+    else
+        all_combinations
+    end
+end
+
+$folders += drum_kit( []            , $drum_tags )
+$folders += drum_kit( :roland_tr808 , $drum_tags )
+$folders += drum_kit( :roland_mc909 , $drum_tags )
+$folders += drum_kit( :roland_mc202 , $drum_tags )
+$folders += drum_kit( :yamaha_rx120 , $drum_tags )
+
+
+
+# ============================================================
+# packages
+def package( package_tag )
+   [ 
+    Folder.new( [ :organ  , package_tag ] .flatten                       ) ,
+    Folder.new( [ :lead   , package_tag ] .flatten   , [ :loop         ] ) ,
+    Folder.new( [ :guitar , package_tag ] .flatten   , [ :loop         ] ) ,
+    Folder.new( [ :fx     , package_tag ] .flatten                       ) ,
+    Folder.new( [ :synth  , package_tag ] .flatten   , [ :loop         ] ) ,
+    Folder.new( [ :bass   , package_tag ] .flatten   , [ :loop , :kick ] ) ,
+   ] + drum_kit( package_tag , $drum_tags ) + add_loop( package_tag )
+end
+
+
+$folders += package ( []           )
+$folders += package ( :chipshop    )
+$folders += package ( :loopmasters )
+$folders += package ( :ueberschall )
+$folders += package ( :drum_zone   )
 
 $folders += meta_folders_bpm
-$folders += folder_tags.keys.map do |item|
-    Folder.new([ item ])
-end
+
+puts $folders.size
+$folders.flatten!
+puts $folders.size
+$folders.uniq!{ |l| l.uniq_id }
+puts $folders.size

@@ -43,6 +43,8 @@ end
 class Folder
 
     attr_accessor :folder_tags
+    attr_accessor :include
+    attr_accessor :exclude
 
     # include : included tags
     # exclude : excluded tags
@@ -50,6 +52,10 @@ class Folder
         @folder_tags = folder_name
         @include = include_tags
         @exclude = exclude_tags
+    end
+
+    def uniq_id 
+        [@folder_tags, @include, @exclude]
     end
 
     def name
