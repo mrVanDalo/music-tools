@@ -90,6 +90,7 @@ load "sample-script-tags.rb"
 # need $all_tags
 
 def find_samples(samples_dir)
+    ignored_counter = 0
     samples = []
 
     def is_propper_sample?( file ) 
@@ -106,12 +107,17 @@ def find_samples(samples_dir)
     end
 
 
+    puts "collect samples from #{samples_dir}"
     Dir.glob("#{samples_dir}/**/*") do |item|
         if is_propper_sample?(item)
             samples += [Sample.new(samples_dir, item)]
+        else
+            ignored_counter += 1
         end
     end
 
+    puts "ignored #{ignored_counter} files"
+    puts "found #{samples.size} samples"
     return samples
 end
 
@@ -122,6 +128,7 @@ def collect_samples( samples )
         sample_collection[ folder.folder_tags ] = []
     end
 
+    puts "collect samples"
     samples.each do |sample|
         $folders.each do |folder|
             if (folder.belongs_to?( sample))
@@ -133,6 +140,8 @@ def collect_samples( samples )
 end
 
 def clean_folders!( sample_collection )
+
+    puts "clean folders"
     sample_collection.keys.map do |folder_tags |
         samples = sample_collection[ folder_tags ]
         sample_collection[ folder_tags ] = samples.uniq
@@ -140,6 +149,8 @@ def clean_folders!( sample_collection )
 end
 
 def clean_parent_folders! ( sample_collection )
+    
+    puts "clean parent folders"
     sample_collection.keys.map do |folder_tags|
         samples = sample_collection[ folder_tags ]
         Folder.parent_folders_names( folder_tags ).each do | parent_folder_tags |
@@ -173,6 +184,7 @@ def create_link_directives( sample_collection )
         end
     end
 
+    puts "create link directives"
     sample_result = []
     sample_collection.each do |folder_tags, samples|
         depth = get_depth(samples)
@@ -210,7 +222,7 @@ clean_folders!( sample_collection )
 clean_parent_folders!( sample_collection )
 sample_directives = create_link_directives( sample_collection )
 
-puts " directives : #{sample_directives.size}"
+puts "link directives: #{sample_directives.size}"
 sample_directives.each do |directive|
     FileUtils.mkdir_p directive[:folder]
     FileUtils.ln(

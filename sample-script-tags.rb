@@ -558,9 +558,9 @@ $folders += package ( :drum_zone   )
 
 $folders += meta_folders_bpm
 
-puts $folders.size
+puts "naive created folder instructions : #{$folders.size}"
 $folders.flatten!
-puts $folders.size
+puts "folders created #{$folders.size}"
 $folders.uniq!{ |l| l.uniq_id }
-puts $folders.size
+puts "maximal number of folders possilbe #{$folders.size}"
 
