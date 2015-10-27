@@ -392,13 +392,13 @@ def drum_kit( brand_tag , drum_tags )
     end
 
     if brand_tag.empty?
+        top_level = []
+        brand_combinations = []
+    else
         top_level          = [ Folder.new( [ brand_tag ] , [ :loop ] , [ :brand, brand_tag, :drumkit  ] ) ]
         brand_combinations = drum_tags.map do |tag|
             Folder.new( [ brand_tag, tag ].flatten , [ :loop ] , [ :brand, brand_tag, :drumkit , tag ].flatten )
         end
-    else
-        top_level = []
-        brand_combinations = []
     end
 
     top_level + all_combinations + brand_combinations
