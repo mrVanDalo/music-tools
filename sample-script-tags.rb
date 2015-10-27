@@ -4,18 +4,44 @@
 # $all_tags: { :tagname => [ String ] }
 
 
-def tag_help( prefix, suffix)
-    [ '-', '_', ' ', '.', '', '#'].map do |separator|
-        "#{prefix}#{separator}#{suffix}"
+
+
+
+
+
+# ============================================================
+# glues everything together
+def match_glue( *args )
+
+    def tag_help2( elem_list , suffix)
+        separators = [ '-', '_', ' ', '.', '', '#']
+        result = separators.map do |separator|
+            elem_list.map do |elem|
+                "#{elem}#{separator}#{suffix}"
+            end
+        end
+        result.flatten
     end
+
+    def reco( result , rest )
+        if rest.size == 0 
+            return result
+        end
+        reco( tag_help2( result , rest[0] ), rest.drop(1) )
+    end
+
+    reco( args.take(1), args.drop(1) )
 end
 
-# need to filter out files which are loops from drum/kick (for example)
 
+
+
+
+# ============================================================
 # to filter out bpm
 meta_tags_bpm = (90..200).map do |bpm|
-    #{ "#{bpm}bpm" => tag_help( bpm, "bpm" ) }
-    { "#{bpm}bpm" => [ bpm.to_s ] }
+    { "#{bpm}bpm" => match_glue( bpm, "bpm" ) }
+    #{ "#{bpm}bpm" => [ bpm.to_s ] }
 end
 meta_tags_bpm    = meta_tags_bpm.reduce( {}, :merge )
 meta_folders_bpm = meta_tags_bpm.keys.map do |tag|
@@ -23,6 +49,11 @@ meta_folders_bpm = meta_tags_bpm.keys.map do |tag|
 end
 $bpm_tags = meta_tags_bpm.keys
 
+
+
+
+
+# ============================================================
 # tags which will result in a folder (:all)
 folder_tags = {
     :pulse        => %w( pulse                       ) ,
@@ -79,12 +110,12 @@ meta_tags = {
     # pack names
     :chipshop => %w( chipshop ),
     # brands
-    :roland_tr808 => tag_help( 'tr', '808'),
-    :roland_mc909 => tag_help( 'mc', '909'),
-    :roland_mc202 => tag_help( 'mc', '202'),
-    :roland_jupiter8 => tag_help( 'jp', '8') + tag_help( 'jupiter' , '8' ),
+    :roland_tr808 => match_glue( 'tr', '808'),
+    :roland_mc909 => match_glue( 'mc', '909'),
+    :roland_mc202 => match_glue( 'mc', '202'),
+    :roland_jupiter8 => match_glue( 'jp', '8') + match_glue( 'jupiter' , '8' ),
     :moog => %w( moog ),
-    :yamaha_rx120 => tag_help( 'rx', '120'),
+    :yamaha_rx120 => match_glue( 'rx', '120'),
     # genre
     :dnb       => %w( dnb drum_n_bass drum_and_bass ) ,
     :dub       => %w( dub                           ) ,
@@ -100,7 +131,9 @@ meta_tags = {
 $all_tags = folder_tags.merge( meta_tags ).merge( meta_tags_bpm )
 
 
-def help_loop( tag )
+# ============================================================
+# add_loop
+def add_loop( tag )
     folder = [ Folder.new( [ :loop, tag ] ) ]
     folder_bpm = $bpm_tags.map do |bpm_tag| 
         [
@@ -232,25 +265,25 @@ $folders += brand_drum_kit( :chipshop )
 $folders += help_instrument( :roland_jupiter8)
 $folders += help_instrument( :moog )
 
-$folders += help_loop( :dnb        )
-$folders += help_loop( :dub        )
-$folders += help_loop( :jazz       )
-$folders += help_loop( :noise      )
-$folders += help_loop( :breakbeat  )
-$folders += help_loop( :hiphop     )
-$folders += help_loop( :funkdisco  )
-$folders += help_loop( :ambient    )
-$folders += help_loop( :vinyl      )
-$folders += help_loop( :fx         )
-$folders += help_loop( :pads       )
-$folders += help_loop( :lead       )
-$folders += help_loop( :bass       )
-$folders += help_loop( :vocal      )
-$folders += help_loop( :drumkit    )
-$folders += help_loop( :kick       )
-$folders += help_loop( :percussion )
-$folders += help_loop( :glitch     )
-$folders += help_loop( :deep )
+$folders += add_loop( :dnb        )
+$folders += add_loop( :dub        )
+$folders += add_loop( :jazz       )
+$folders += add_loop( :noise      )
+$folders += add_loop( :breakbeat  )
+$folders += add_loop( :hiphop     )
+$folders += add_loop( :funkdisco  )
+$folders += add_loop( :ambient    )
+$folders += add_loop( :vinyl      )
+$folders += add_loop( :fx         )
+$folders += add_loop( :pads       )
+$folders += add_loop( :lead       )
+$folders += add_loop( :bass       )
+$folders += add_loop( :vocal      )
+$folders += add_loop( :drumkit    )
+$folders += add_loop( :kick       )
+$folders += add_loop( :percussion )
+$folders += add_loop( :glitch     )
+$folders += add_loop( :deep )
 
 $folders += meta_folders_bpm
 $folders += folder_tags.keys.map do |item|
