@@ -107,7 +107,7 @@ def find_samples(samples_dir)
     end
 
 
-    puts "collect samples from #{samples_dir}"
+    puts "load samples from #{samples_dir}"
     Dir.glob("#{samples_dir}/**/*") do |item|
         if is_propper_sample?(item)
             samples += [Sample.new(samples_dir, item)]
