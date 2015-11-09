@@ -33,7 +33,7 @@ start_programs(){
 # set CURRENT_PROJECT
 choose_project_dialog(){
     menu=()
-    for project in `ls $BASE_PATH`
+    for project in `ls $BASE_PATH | sort --reverse`
     do
         local project_text_file=$BASE_PATH/$project/info
         local project_text=""

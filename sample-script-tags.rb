@@ -86,24 +86,6 @@ meta_tags = {
     :instrument   => %w( instrument                  ) ,
     # drumkit
     :drumkit      => %w( drumkit drum kit            ) ,
-    :kick    => %w( kick bassdrum                 ) ,
-    :hihat   => %w( hihat hat hit openhi closedhi ) ,
-    :clap    => %w( clap                          ) ,
-    :snare   => %w( snare                         ) ,
-    :ride    => %w( ride                          ) ,
-    :rim     => %w( rim                           ) ,
-    :crash   => %w( crash cymbal cym              ) ,
-    :tom     => %w( tom                           ) ,
-    :clave   => %w( clave                         ) ,
-    :bongo   => %w( bongo conga                   ) ,
-    :shaker  => %w( shaker                        ) ,
-    :mallet  => %w( mallet                        ) ,
-    :wood    => %w( wood                          ) ,
-    :whistle => %w( whistle                       ) ,
-    :stick   => %w( stick                         ) ,
-    :bell => %w( cow bell                      ) ,
-    :maraca  => %w( maraca ),
-    :percussion   => %w( percussion perc             ) ,
     # packages
     :chipshop    => %w( chipshop    ) ,
     :loopmasters => %w( loopmasters ) ,
@@ -119,6 +101,27 @@ meta_tags = {
     :funkdisco    => %w( disco funk                  ) ,
     :ambient => %w( ambient ) ,
 
+}
+
+$drum_tags = {
+    :kick    => %w( kick bassdrum                 ) ,
+    :hihat   => %w( hihat hat hit openhi closedhi ) ,
+    :clap    => %w( clap                          ) ,
+    :snare   => %w( snare                         ) ,
+    :ride    => %w( ride                          ) ,
+    :rim     => %w( rim                           ) ,
+    :crash   => %w( crash cymbal cym              ) ,
+    :tom     => %w( tom                           ) ,
+    :clave   => %w( clave                         ) ,
+    :bongo   => %w( bongo conga                   ) ,
+    :shaker  => %w( shaker                        ) ,
+    :mallet  => %w( mallet                        ) ,
+    :wood    => %w( wood                          ) ,
+    :whistle => %w( whistle                       ) ,
+    :stick   => %w( stick                         ) ,
+    :bell    => %w( cow bell                      ) ,
+    :maraca  => %w( maraca ),
+    :percussion   => %w( percussion perc             ) ,
 }
 
 
@@ -262,7 +265,7 @@ brand_tags = {
 }
 
 # tags to extract from sample Map( TagName , List( StringMatches ) )
-$all_tags = meta_tags.merge( meta_tags_bpm ).merge( brand_tags )
+$all_tags = meta_tags.merge( meta_tags_bpm ).merge( brand_tags ).merge( $drum_tags )
 
 
 
@@ -378,16 +381,10 @@ $folders += add_instrument( :moog )
 
 # ============================================================
 # drums
-$drum_tags = [ 
-    :kick ,:hihat ,:clap ,:snare ,:ride ,
-    :rim ,:crash ,:tom ,:clave, :bongo, :whistle, 
-    :shaker, :mallet ,:wood ,:stick , :bell,
-    :maraca, :fx ,:percussion 
-]
 
-def drum_kit( brand_tag , drum_tags )
+def drum_kit( brand_tag )
 
-    all_combinations = drum_tags.map do |tag|
+    all_combinations = $drum_tags.keys.map do |tag|
         Folder.new( [ brand_tag, tag ].flatten , [ :loop ] , [ :drumkit , tag, brand_tag ].flatten )
     end
 
@@ -396,7 +393,7 @@ def drum_kit( brand_tag , drum_tags )
         brand_combinations = []
     else
         top_level          = [ Folder.new( [ brand_tag ] , [ :loop ] , [ :brand, brand_tag, :drumkit  ] ) ]
-        brand_combinations = drum_tags.map do |tag|
+        brand_combinations = $drum_tags.keys.map do |tag|
             Folder.new( [ brand_tag, tag ].flatten , [ :loop ] , [ :brand, brand_tag, :drumkit , tag ].flatten )
         end
     end
@@ -404,9 +401,9 @@ def drum_kit( brand_tag , drum_tags )
     top_level + all_combinations + brand_combinations
 end
 
-$folders += drum_kit( []            , $drum_tags )
+$folders += drum_kit( [] )
 brand_tags.keys.each do |tag|
-    $folders += drum_kit( tag , $drum_tags )
+    $folders += drum_kit( tag )
 end
 
 
@@ -423,7 +420,7 @@ def package( package_tag )
     Folder.new( [ :fx     , package_tag ] .flatten                       ) ,
     Folder.new( [ :synth  , package_tag ] .flatten   , [ :loop         ] ) ,
     Folder.new( [ :bass   , package_tag ] .flatten   , [ :loop , :kick ] ) ,
-   ] + drum_kit( package_tag , $drum_tags ) + add_loop( package_tag )
+   ] + drum_kit( package_tag ) + add_loop( package_tag )
 end
 
 
