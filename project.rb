@@ -2,11 +2,11 @@
 
 # configuration
 DEFAULT_PROJECT = '/home/renoise/projects'
-#PLAYER          = '/usr/bin/mplayer -noconsolecontrols -ao jack'
 PLAYER          = '/usr/bin/mplayer -ao jack'
 EXAMPLE         = 'example.mp3'
 INFO            = 'info'
 START           = 'start.sh'
+EDITOR          = 'vim'
 
 #
 # read all information from the project folder
@@ -24,14 +24,12 @@ end
   path          = "#{@project_folder}/#{project_name}"
   info_path     = "#{path}/#{INFO}"
   example_path  = "#{path}/#{EXAMPLE}"
-  project_start = "#{path}/#{START}"
   {
     :name            => project_name,
     :path            => path,
     :info            => extract_info_message(info_path),
     :example         => example_path,
     :example_exists? => File.exist?( example_path ),
-    :project         => project_start
   }
 }
 
@@ -68,16 +66,12 @@ def project_list_window()
         win.addstr(current[:name])
       end
     end
-    # print selection
     win.setpos(@current_project_index + 1, 2)
   end
-  #
   win.refresh
-  #
   # read the commands
   command_char()
 end
-
 
 def headline_window()
   headline_top    = 1
@@ -88,7 +82,6 @@ def headline_window()
     headline_width,
     headline_top,
     headline_width + 1)
-  #
   name = @all_project_names[@current_project_index][:name]
   headline.setpos( 1 ,  (headline_width / 2) - (name.length / 2)  )
   headline.addstr( name )
@@ -96,7 +89,6 @@ def headline_window()
 end
 
 def info_text_window()
-  #
   info_text = @all_project_names[@current_project_index][:info]
   top = 10
   width = (cols / 2) - 2
@@ -112,7 +104,6 @@ end
 
 def option_window()
   example_exists = @all_project_names[@current_project_index][:example_exists?]
-  #example_exists = true
   example_width  = (cols / 2 ) - 4
   example_left   = (cols / 2 ) + 1
   example_top    = 5
@@ -125,19 +116,14 @@ def option_window()
   )
   if ( example_exists )
     example_win.box('|', '-')
-    play_message = "p : Play example" 
+    play_message = "p : Play example"
     example_win.setpos( 1, (example_width / 2 ) - (play_message.length / 2 ))
     example_win.addstr( play_message )
     example_win.refresh
   else
     example_win.refresh
   end
-
 end
-
-
-
-
 
 #
 # understand the command pressed
@@ -163,33 +149,28 @@ end
 #
 # command functions
 #
-
 def open_project()
   path = @all_project_names[@current_project_index][:path]
   system "cd #{path}; bash #{START}"
   exit
 end
-
 def next_project()
   @current_project_index += 1
   if ((@all_project_names.length - 1) <= @current_project_index)
     @current_project_index = @all_project_names.length - 1
   end
 end
-
 def previous_project()
   @current_project_index -= 1
   if ( @current_project_index < 0 )
     @current_project_index = 0
   end
 end
-
 def edit_project_info()
   info_path = "#{@all_project_names[@current_project_index][:path]}/#{INFO}"
-  system "vim #{info_path}"
+  system "#{EDITOR} #{info_path}"
   @all_project_names[@current_project_index][:info] = extract_info_message( info_path )
 end
-
 def play_example()
   example_exist = @all_project_names[@current_project_index][:example_exists?]
   if ( example_exist )
@@ -197,9 +178,6 @@ def play_example()
     system "#{PLAYER} #{example_path} > /dev/null"
   end
 end
-
-
-
 
 #
 # main program
@@ -217,4 +195,3 @@ begin
 ensure
   close_screen
 end
-
