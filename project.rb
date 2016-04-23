@@ -69,8 +69,6 @@ def project_list_window()
     win.setpos(@current_project_index + 1, 2)
   end
   win.refresh
-  # read the commands
-  command_char()
 end
 
 def headline_window()
@@ -128,7 +126,7 @@ end
 #
 # understand the command pressed
 #
-def command_char()
+def read_command_char()
   char = STDIN.getc
   case char
   when 'j'
@@ -190,6 +188,7 @@ begin
     info_text_window()
     option_window()
     project_list_window()
+    read_command_char()
     refresh
   end
 ensure
