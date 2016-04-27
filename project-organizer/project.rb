@@ -150,6 +150,11 @@ end
 def open_project()
   path = @all_project_names[@current_project_index][:path]
   system "cd #{path}; bash #{START}"
+  puts
+  puts '-------------------------------------------------------'
+  puts path
+  puts '-------------------------------------------------------'
+  puts
   exit
 end
 def next_project()
