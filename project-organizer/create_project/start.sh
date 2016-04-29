@@ -37,7 +37,13 @@ read_project_name(){
 read_project_name
 if [[ $? -ne 0 ]]; then
     echo "no project name given"
+    exit
 fi
 
-create_project ${PROJECT_NAME}
+if [[ -z ${PROJECT_NAME} ]]
+then
+    echo "will not create empty project name"
+else
+    create_project ${PROJECT_NAME}
+fi
 
