@@ -12,10 +12,10 @@ EDITOR          = 'vim'
 # read all information from the project folder
 #
 def extract_info_message(info_path)
-  if ( File.exist?(info_path) )
-    return File.open(info_path, "r") { |file| file.read }
+  if File.exist?(info_path)
+    File.open(info_path, 'r') { |file| file.read }
   else
-    return "NO info yet"
+    'NO info yet'
   end
 end
 @project_folder = ARGV.shift || DEFAULT_PROJECT
@@ -36,14 +36,14 @@ end
 # the current selected project
 @current_project_index = 0
 
-require "curses"
+require 'curses'
 include Curses
 
 #
 # list all projects on the lift side oft the
 # screen.
 #
-def project_list_window()
+def project_list_window
   win = Window.new(
     lines - 2,
     (cols / 2) - 2,
@@ -62,7 +62,7 @@ def project_list_window()
     (0..lines_height).each do |current_line|
       win.setpos(current_line + 1,4)
       current = @all_project_names[current_line]
-      if (current)
+      if current
         win.addstr(current[:name])
       end
     end
@@ -71,7 +71,7 @@ def project_list_window()
   win.refresh
 end
 
-def headline_window()
+def headline_window
   headline_top    = 1
   headline_height = 3
   headline_width  = (cols / 2) - 2
@@ -86,7 +86,7 @@ def headline_window()
   headline.refresh
 end
 
-def info_text_window()
+def info_text_window
   info_text = @all_project_names[@current_project_index][:info]
   top = 10
   width = (cols / 2) - 2
@@ -100,7 +100,7 @@ def info_text_window()
   info_win.refresh
 end
 
-def option_window()
+def option_window
   example_exists = @all_project_names[@current_project_index][:example_exists?]
   example_width  = (cols / 2 ) - 4
   example_left   = (cols / 2 ) + 1
@@ -112,9 +112,9 @@ def option_window()
     example_top,
     example_left
   )
-  if ( example_exists )
+  if example_exists
     example_win.box('|', '-')
-    play_message = "p : Play example"
+    play_message = 'p : Play example'
     example_win.setpos( 1, (example_width / 2 ) - (play_message.length / 2 ))
     example_win.addstr( play_message )
     example_win.refresh
@@ -126,28 +126,28 @@ end
 #
 # understand the command pressed
 #
-def read_command_char()
+def read_command_char
   char = STDIN.getc
   case char
   when 'j'
-    next_project()
+    next_project
   when  'k'
-    previous_project()
+    previous_project
   when 'q'
     exit
   when 'e'
-    edit_project_info()
+    edit_project_info
   when 'p'
-    play_example()
+    play_example
   else # should only happen if RETURN key is pressed, but don't know how
-    open_project()
+    open_project
   end
 end
 
 #
 # command functions
 #
-def open_project()
+def open_project
   path = @all_project_names[@current_project_index][:path]
   system "cd #{path}; bash #{START}"
   puts
@@ -157,26 +157,26 @@ def open_project()
   puts
   exit
 end
-def next_project()
+def next_project
   @current_project_index += 1
-  if ((@all_project_names.length - 1) <= @current_project_index)
+  if (@all_project_names.length - 1) <= @current_project_index
     @current_project_index = @all_project_names.length - 1
   end
 end
-def previous_project()
+def previous_project
   @current_project_index -= 1
-  if ( @current_project_index < 0 )
+  if @current_project_index < 0
     @current_project_index = 0
   end
 end
-def edit_project_info()
+def edit_project_info
   info_path = "#{@all_project_names[@current_project_index][:path]}/#{INFO}"
   system "#{EDITOR} #{info_path}"
   @all_project_names[@current_project_index][:info] = extract_info_message( info_path )
 end
-def play_example()
+def play_example
   example_exist = @all_project_names[@current_project_index][:example_exists?]
-  if ( example_exist )
+  if example_exist
     example_path = @all_project_names[@current_project_index][:example] 
     system "#{PLAYER} #{example_path} > /dev/null"
   end
@@ -189,11 +189,11 @@ init_screen
 begin
   crmode
   while true
-    headline_window()
-    info_text_window()
-    option_window()
-    project_list_window()
-    read_command_char()
+    headline_window
+    info_text_window
+    option_window
+    project_list_window
+    read_command_char
     refresh
   end
 ensure
