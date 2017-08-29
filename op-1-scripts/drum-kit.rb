@@ -5,7 +5,7 @@ db_level = -8
 sample_rate = 44100
 
 # import
-import_dir = "/home/renoise/drumlab exports/808 Drumkit"
+import_dir = "/dev/shm/export"
 
 # work related
 work_dir = "/dev/shm/work"
