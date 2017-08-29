@@ -5,7 +5,7 @@ db_level = -8
 sample_rate = 44100
 
 # import
-import_dir = "/dev/shm/export"
+import_dir = "/home/renoise/drumlab exports/808 Drumkit"
 
 # work related
 work_dir = "/dev/shm/work"
@@ -22,7 +22,7 @@ if File.directory?(work_dir)
 end
 FileUtils.mkdir_p(work_dir)
 
-samples = Dir["#{import_dir}/*"]
+samples = Dir["#{import_dir}/*"].sort
 
 
 def run ( command )
@@ -32,9 +32,9 @@ end
 
 # prepare
 samples.each do |sample|
-  run( "sox #{sample} " \
-          "#{work_dir}/#{File.basename(sample)} " \
-          "channels 2 " \
+  run( "sox '#{sample}' " \
+          "'#{work_dir}/#{File.basename(sample)}' " \
+          "channels 1 " \
           "silence 1 0 0.4% 1 0 0.4% " \
           "gain -n #{db_level} " \
           "rate #{sample_rate}" )
@@ -43,24 +43,24 @@ end
 
 # create empty file
 run ( "sox --null " \
-         "--channels 2 " \
+         "--channels 1 " \
          "--rate #{sample_rate} " \
-         "#{output_dir}/#{output_file_tmp1} " \
+         "'#{output_dir}/#{output_file_tmp1}' " \
          "trim 0 0" )
 # merge
 samples.map{ |sample|
   File.basename(sample)
 }.each do |sample|
   run( "sox " \
-          "#{output_dir}/#{output_file_tmp1} " \
-          "#{work_dir}/#{sample} " \
-          "#{output_dir}/#{output_file_tmp2}" )
+          "'#{output_dir}/#{output_file_tmp1}' " \
+          "'#{work_dir}/#{sample}' " \
+          "'#{output_dir}/#{output_file_tmp2}'" )
   FileUtils.mv( "#{output_dir}/#{output_file_tmp2}", "#{output_dir}/#{output_file_tmp1}" )
 end
 
 
 run( "sox " \
-         "#{output_dir}/#{output_file_tmp1} " \
-         "#{output_dir}/#{output_file}" )
+         "'#{output_dir}/#{output_file_tmp1}' " \
+         "'#{output_dir}/#{output_file}'" )
 
 #FileUtils.rm("#{output_dir}/#{output_file_tmp1}")
