@@ -1,7 +1,0 @@
-require "bundler/gem_tasks"
-task :default => :spec
-
-desc 'build and install locally'
-task :development_install => ["build", "install:local"]
-
-
