@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+
+# set -x
+
+TIMESTAMP=`date +%Y-%m-%d`
+
+# remove trailing slash
+SOURCE=${1%/}
+PROJECT_NAME=${2%/}
+TARGET="${HOME}/audio/projects/OP-1/${TIMESTAMP}_${PROJECT_NAME}"
+SNAPSHOT_DB="${HOME}/audio/projects/OP-1_Database"
+
+# todo : make sure spaces can be used in folder names
+# todo : ask if side_a and side_b should be copied
+
+# check input
+if [[ $# -ne 2 ]]
+then
+    cat <<EOF
+
+Usage: backup-op1 <folder-of-mountpoint> <projectname>
+
+
+EOF
+    exit 1
+fi
+
+function info_log(){
+    echo -n ">>> [ "
+    echo -n $@
+    echo " ]"
+}
+
+function greeting(){
+    local bar="---------------"
+    for c in $(seq 2 ${#PROJECT_NAME})
+    do
+        bar="${bar}-"
+    done
+    info_log "${bar}"
+    info_log " OP-1 Backup : ${PROJECT_NAME}"
+    info_log "${bar}"
+}
+
+function create_folder_structure(){
+
+    if [[ -d ${TARGET} ]]
+    then
+        echo "${TARGET} already exists please choose another name";
+        exit 1;
+    fi
+
+    if [[ ! -d ${SOURCE} ]]
+    then
+        echo "${SOURCE} does not exists";
+        exit 1;
+    fi
+
+    info_log "create folder structure"
+    mkdir --parents \
+          ${TARGET}/drum \
+          ${TARGET}/synth \
+          ${TARGET}/album
+}
+
+function copy_instrument(){
+    local instrument=$1
+    local input=${SOURCE}/${instrument}/user
+    local output=${TARGET}/${instrument}
+
+    info_log "copy instrument ${instrument}"
+    if [[ -d ${input} ]]
+    then
+        cp --recursive  \
+           ${input} \
+           ${output}
+    else
+        echo "${input} does not exist"
+    fi
+}
+
+function zip_instruments(){
+    local current_folder=`pwd`
+
+    info_log "zip instruments"
+
+    cd ${TARGET}
+    tar \
+        --create \
+        --verbose \
+        --xz \
+        --file=instruments.tar.xz \
+        drum \
+        synth \
+    && rm -rf drum synth
+
+    cd ${current_folder}
+}
+
+function sync_snapshots(){
+    local instrument=$1
+    local input=${SOURCE}/${instrument}/snapshot
+    local output=${SNAPSHOT_DB}/${instrument}
+
+    info_log "sync snapshots ${instrument}"
+    if [[ -d ${input} ]]
+    then
+        rsync \
+            --recursive \
+            --verbose \
+            --human-readable \
+            ${input} \
+            ${output}
+    else
+        echo "${input} does not exist"
+    fi
+}
+
+function copy_tape(){
+    local input=${SOURCE}/tape
+    local output=${TARGET}
+
+    info_log "copy tape"
+    if [[ -d ${input} ]]
+    then
+        cp --recursive \
+           ${SOURCE}/tape \
+           ${TARGET}
+    else
+        echo "${input} does not exist"
+    fi
+}
+
+function ffmpeg_call(){
+    local input=$1
+    local output=$2
+    ffmpeg \
+        -i ${input} \
+        -f mp3 \
+        -codec:a libmp3lame \
+        -qscale:a 5 \
+        -ar 44100 \
+        -loglevel error \
+        -af silenceremove=0:0:0:-1:1:-90dB \
+        -af loudnorm \
+        ${output}
+}
+function decode_recodings(){
+    local side=$1
+    local input="${SOURCE}/album/${side}.aif"
+    local input_alternative="${SOURCE}/album/${side}.mp3"
+    local output="${TARGET}/album/${side}.mp3"
+
+    info_log "decode recording ${side}"
+    # https://trac.ffmpeg.org/wiki/Encode/MP3
+    if [[ -e ${input} ]]
+    then
+        ffmpeg_call \
+            ${input} \
+            ${output}
+    elif [[ -e ${input_alternative} ]]
+    then
+        ffmpeg_call \
+            ${input_alternative} \
+            ${output}
+    else
+        echo "${input} does not exist"
+    fi
+}
+
+
+#
+# MAIN
+#
+
+greeting
+
+create_folder_structure
+
+copy_instrument drum
+copy_instrument synth
+
+copy_tape
+
+decode_recodings side_a
+decode_recodings side_b
+
+sync_snapshots drum
+sync_snapshots synth
+
+zip_instruments
